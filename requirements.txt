@@ -1,1 +1,4 @@
-Flask==3.0.3
+Flask
+g4f[openai]
+httpx[http2]
+beautifulsoup4

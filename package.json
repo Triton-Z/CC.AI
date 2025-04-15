@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "flask-dev": "FLASK_DEBUG=1 pip3 install -r requirements.txt && python3 -m flask --app api/index run -p 5328",
+    "flask-dev": ".venv\\Scripts\\pip.exe install -r requirements.txt && .venv\\Scripts\\python.exe -m flask --app api/index run -p 5328",
     "next-dev": "next dev",
     "dev": "concurrently \"pnpm run next-dev\" \"pnpm run flask-dev\"",
     "build": "next build",
@@ -26,3 +26,4 @@
     "typescript": "5.0.4"
   }
 }
+
