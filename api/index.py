@@ -56,6 +56,7 @@ def process_url():
 
         # Extract title separately
         title_element = soup.find("h1", class_="J-lemma-title")
+
         article_title = title_element.get_text(strip=True) if title_element else "Title Not Found"
         logging.info(f"Extracted title: {article_title}")
 
@@ -99,23 +100,28 @@ def process_url():
         parse_end_time = time.time()
         logging.info(f"Parsing completed in {parse_end_time - parse_start_time:.2f}s. Found {len(full_structure)} structural elements.")
 
-        # 3. Structure Response (No AI involved here anymore)
+        # 3. Construct Plain Text Response
         end_process_time = time.time()
         logging.info(f"Total processing time for {url_to_fetch}: {end_process_time - start_process_time:.2f}s")
 
         if not full_structure:
              logging.warning(f"Parsing resulted in empty structure for {url_to_fetch}.")
-             # Consider returning an error or specific message if structure is crucial
-             # return jsonify({"error": "Failed to parse article structure."}), 500
+             # Return an error if no structure found
+             return jsonify({"error": "Failed to parse article structure."}), 500
 
-        return jsonify({
-            "success": True,
-            "message": "URL fetched and parsed successfully.",
-            "title": article_title,
-            "full_structure": full_structure # Return the list of {'type': '...', 'text': '...'}
-        }), 200
+        # Combine title and structure into a single string
+        response_lines = [article_title, ""] # Start with title and a blank line
+        for element in full_structure:
+            # Just append the text, ignoring the type for formatting
+            response_lines.append(element['text'])
 
-    # Error Handling
+        response_text = "\n".join(response_lines)
+
+        # Return plain text response
+        return response_text, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+
+    # Error Handling (Keep existing handlers but ensure they return JSON errors)
     except httpx.RequestError as exc:
         logging.error(f"An error occurred while requesting {exc.request.url!r}: {exc}")
         return jsonify({"error": f"Could not fetch URL: Request error - {exc}"}), 500
