@@ -37,6 +37,7 @@ export default function Home() {
       setIsLoading(true);
 
       try {
+        // Call the updated backend endpoint
         const response = await fetch('/api/process-url', {
           method: 'POST',
           headers: {
@@ -47,23 +48,42 @@ export default function Home() {
 
         const result = await response.json();
 
+        // Check for immediate errors from parsing/fetching before async task starts
         if (!response.ok) {
-          // Handle errors from the backend API
-          throw new Error(result.error || `HTTP error! status: ${response.status}`);
+          // Use status code 202 for accepted async tasks
+          if (response.status !== 202) {
+             throw new Error(result.error || `HTTP error! status: ${response.status}`);
+          }
+          // If 202, proceed as success (task accepted)
+          console.log('Backend accepted request (202):', result.message);
+        } else {
+           // Handle potential immediate success (though less likely now)
+           console.log('Backend processed immediately (unexpected?):', result.message);
         }
 
-        // Backend successfully processed the URL, now navigate
-        console.log('Backend success:', result.message);
-        // Store the URL for the next page (optional, could use query params or state management)
-        // For simplicity, we'll just navigate for now. The article page won't know the URL yet.
+
+        console.log('Title:', result.title);
+        console.log('Task ID:', result.task_id);
+
+        // --- Store only title and task ID ---
+        sessionStorage.setItem('articleTitle', result.title || 'Title Not Found');
+        sessionStorage.setItem('annotationTaskId', result.task_id || '');
+        // Clear previous potentially stored data
+        sessionStorage.removeItem('articleElements');
+        sessionStorage.removeItem('annotatedArticleElements');
+        sessionStorage.removeItem('articleDescription'); // Clear old description storage
+
+
+        // Navigate to the article page - it will handle polling
         router.push('/article');
 
       } catch (error) {
         console.error("Error processing URL:", error);
         setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred.');
-      } finally {
-        setIsLoading(false); // Reset loading state regardless of outcome
+        setIsLoading(false); // Stop loading on error
       }
+      // Do not set isLoading to false here in the success case,
+      // loading continues conceptually on the next page.
     }
   };
 
