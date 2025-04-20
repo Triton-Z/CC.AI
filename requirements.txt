@@ -1,4 +1,3 @@
 Flask
-g4f[openai]
 httpx[http2]
 beautifulsoup4

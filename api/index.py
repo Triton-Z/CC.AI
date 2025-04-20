@@ -110,10 +110,10 @@ def process_url():
              return jsonify({"error": "Failed to parse article structure."}), 500
 
         # Combine title and structure into a single string
-        response_lines = [article_title, ""] # Start with title and a blank line
+        response_lines = [f"TITLE {article_title}", ""] # Start with title and a blank line
         for element in full_structure:
             # Just append the text, ignoring the type for formatting
-            response_lines.append(element['text'])
+            response_lines.append(f"{element['type']} {element['text']}")
 
         response_text = "\n".join(response_lines)
 
