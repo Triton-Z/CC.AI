@@ -1,26 +1,25 @@
-"use client"; // Add this directive for client-side interactivity
+"use client"; 
 
-import React, { useState, KeyboardEvent, useEffect } from 'react'; // Keep useEffect for potential future use, but remove observer logic
-import { useRouter } from 'next/navigation'; // Import useRouter
+import React, { useState, KeyboardEvent, useEffect } from 'react'; 
+import { useRouter } from 'next/navigation'; 
 
-// Declare puter for TypeScript - needed if any Puter functions are called, but we removed them here. Can be removed if truly unused.
 declare const puter: any;
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // State for loading indicator
-  const router = useRouter(); // Initialize router
+  const [isLoading, setIsLoading] = useState(false); 
+  const router = useRouter(); 
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
-    // Clear error message when user starts typing again
+
     if (errorMessage) {
       setErrorMessage('');
     }
   };
 
-  const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => { // Make async
+  const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => { 
     if (event.key === 'Enter') {
       event.preventDefault();
       const url = inputValue.trim();
@@ -35,33 +34,30 @@ export default function Home() {
         return;
       }
 
-      // Clear previous errors and set loading state
       setErrorMessage('');
       setIsLoading(true);
 
       try {
-        // Fetch the processed article content as plain text
+
         const fetchArticle = await fetch('/api/process-url', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json', // Still send JSON request
+            'Content-Type': 'application/json', 
           },
           body: JSON.stringify({ url: url }),
         });
-        
 
-        // Expect plain text response now
         const articleText = await fetchArticle.text();
 
         if (!fetchArticle.ok) {
-          // Try to parse error as JSON (backend might still send JSON for errors), otherwise use the text
+
           let errorMsg = `HTTP error! status: ${fetchArticle.status}`;
           try {
             const errorJson = JSON.parse(articleText);
             errorMsg = errorJson.error || errorMsg;
           } catch (e) {
-             // If parsing fails, use the raw text (or part of it)
-             errorMsg = articleText.substring(0, 150) || errorMsg; // Show more error text if available
+
+             errorMsg = articleText.substring(0, 150) || errorMsg; 
           }
           throw new Error(errorMsg);
         }
@@ -85,18 +81,17 @@ export default function Home() {
         .then(response => {
           sessionStorage.setItem('entireArticle', articleText)
           sessionStorage.setItem('articleContent', response.message.content);
-          // Navigate to the article page
+
           router.push('/article');
         });  
 
-        // Backend successfully processed the URL, now navigate
         console.log('Backend success: Received article text.');
-        // Store the entire fetched text content in sessionStorage
+
       } catch (error) {
         console.error("Error processing URL:", error);
         setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred.');
       } finally {
-        setIsLoading(false); // Reset loading state regardless of outcome
+        setIsLoading(false); 
       }
     }
   };
@@ -125,112 +120,103 @@ export default function Home() {
 
                 if (style) {
                   style.innerHTML = `
-                    /* Reset/Base for Dialog */
+
                     dialog {
                         background: transparent;
                         border: none;
                         box-shadow: none;
                         outline: none;
-                        padding: 1rem; /* Add padding for spacing from viewport edges */
+                        padding: 1rem; 
                     }
 
-                    /* Main Dialog Content Box - Tailwind Inspired */
                     .puter-dialog-content {
                         background-color: white;
-                        border-radius: 0.75rem; /* Tailwind: rounded-lg */
-                        padding: 2rem; /* Tailwind: p-8 */
-                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* Tailwind: shadow-lg */
-                        color: #374151; /* Tailwind: text-gray-700 */
+                        border-radius: 0.75rem; 
+                        padding: 2rem; 
+                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); 
+                        color: #374151; 
                         position: relative;
-                        border: 1px solid #e5e7eb; /* Tailwind: border border-gray-200 */
-                        /* Removed background image */
-                        max-width: 500px; /* Keep max-width constraint */
-                        margin: auto; /* Center the dialog content */
-                        font-family: "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif; /* Keep font stack */
-                        -webkit-font-smoothing: antialiased; /* Keep font smoothing */
+                        border: 1px solid #e5e7eb; 
+
+                        max-width: 500px; 
+                        margin: auto; 
+                        font-family: "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif; 
+                        -webkit-font-smoothing: antialiased; 
                     }
 
-                    /* Apply font stack to all children */
                     dialog * {
                         font-family: inherit;
-                        box-sizing: border-box; /* Better box model */
+                        box-sizing: border-box; 
                     }
 
-                    /* Logo Link & Image */
                     .puter-dialog-content > a[href*="puter.com"] {
                         display: block;
-                        width: 64px; /* Slightly smaller */
+                        width: 64px; 
                         height: 64px;
-                        margin: 0 auto 1rem auto; /* Center and add bottom margin */
-                        border-radius: 0.375rem; /* Tailwind: rounded-md */
+                        margin: 0 auto 1rem auto; 
+                        border-radius: 0.375rem; 
                         outline: none;
                         border: none;
                     }
 
-                    /* About Paragraph */
                     dialog p.about {
                         text-align: center;
-                        font-size: 1rem; /* Tailwind: text-base */
-                        line-height: 1.5; /* Tailwind: leading-relaxed */
-                        color: #4b5563; /* Tailwind: text-gray-600 */
-                        padding: 0; /* Remove specific padding */
-                        margin: 20px auto 1.5rem auto; /* Center text block */
+                        font-size: 1rem; 
+                        line-height: 1.5; 
+                        color: #4b5563; 
+                        padding: 0; 
+                        margin: 20px auto 1.5rem auto; 
                     }
 
-                    /* Buttons Container */
                     dialog .buttons {
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        gap: 0.75rem; /* Tailwind: gap-3 */
-                        margin-top: 1.5rem; /* Tailwind: mt-6 */
-                        margin-bottom: 1rem; /* Tailwind: mb-4 */
-                        flex-wrap: wrap; /* Keep wrapping for safety */
+                        gap: 0.75rem; 
+                        margin-top: 1.5rem; 
+                        margin-bottom: 1rem; 
+                        flex-wrap: wrap; 
                     }
 
-                    /* Base Button Styles - Simplified */
                     dialog .button {
-                        display: inline-flex; /* Use flex for alignment */
+                        display: inline-flex; 
                         align-items: center;
                         justify-content: center;
-                        padding: 0.625rem 1.25rem; /* Tailwind: py-2.5 px-5 */
-                        font-size: 0.875rem; /* Tailwind: text-sm */
-                        font-weight: 500; /* Tailwind: font-medium */
-                        line-height: 1.25rem; /* Tailwind: leading-5 */
-                        border-radius: 0.375rem; /* Tailwind: rounded-md */
-                        border: 1px solid transparent; /* Base border */
+                        padding: 0.625rem 1.25rem; 
+                        font-size: 0.875rem; 
+                        font-weight: 500; 
+                        line-height: 1.25rem; 
+                        border-radius: 0.375rem; 
+                        border: 1px solid transparent; 
                         cursor: pointer;
                         text-align: center;
                         text-decoration: none;
                         outline: none;
                         transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
                         -webkit-font-smoothing: antialiased;
-                        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* Tailwind: shadow-sm */
-                        /* Remove old background gradients, shadows, specific heights */
+                        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); 
+
                     }
 
-                    /* Focus Visible State (Accessibility) */
                     dialog .button:focus-visible {
                         outline: 2px solid transparent;
                         outline-offset: 2px;
-                        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* Tailwind: ring-blue-300 */
+                        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); 
                     }
 
-                    /* Continue Button (Primary Look) */
                     #launch-auth-popup {
                         color: white;
-                        background-color:rgb(238, 61, 49); /* Tailwind: bg-blue-500 */
+                        background-color:rgb(238, 61, 49); 
                         border-color: transparent;
-                        /* Removed inline width/margin/font styles, handled by button base/container */
+
                     }
                     #launch-auth-popup:hover {
-                        background-color: #d7281d; /* Tailwind: hover:bg-blue-600 */
+                        background-color: #d7281d; 
                     }
                     #launch-auth-popup:active {
-                        background-color:rgb(185, 35, 24); /* Tailwind: active:bg-blue-700 */
+                        background-color:rgb(185, 35, 24); 
                     }
 
-                    /* Disabled Button State */
                     dialog .button:disabled,
                     dialog .button.disabled,
                     dialog .button.is-disabled {
@@ -238,96 +224,90 @@ export default function Home() {
                         cursor: not-allowed;
                         pointer-events: none;
                         box-shadow: none;
-                        /* Simplified from old complex styles */
+
                     }
 
-                    /* Link Styles */
                     dialog a, dialog a:visited {
-                        color: #d7281d; /* Tailwind: text-blue-500 */
+                        color: #d7281d; 
                         text-decoration: none;
-                        font-weight: 500; /* Tailwind: font-medium */
+                        font-weight: 500; 
                     }
                     dialog a:hover {
                         text-decoration: underline;
-                        color:rgb(238, 62, 50); /* Tailwind: hover:text-blue-600 */
+                        color:rgb(238, 62, 50); 
                     }
                     dialog a:focus-visible {
-                        outline: 2px solid #93c5fd; /* Tailwind blue-300 */
+                        outline: 2px solid #93c5fd; 
                         outline-offset: 2px;
-                        border-radius: 0.25rem; /* Tailwind: rounded-sm */
+                        border-radius: 0.25rem; 
                     }
-                    .puter-dialog-content a:focus{ /* Keep this specific override */
+                    .puter-dialog-content a:focus{ 
                         outline: none;
                     }
 
-                    /* Powered By Paragraph */
                     p[style*="Powered by"] {
                         text-align: center;
-                        font-size: 0.875rem; /* Tailwind: text-sm */
-                        color: #6b7280; /* Tailwind: text-gray-500 */
-                        margin-top: 1rem; /* Tailwind: mt-4 */
+                        font-size: 0.875rem; 
+                        color: #6b7280; 
+                        margin-top: 1rem; 
                         margin-bottom: 0;
                     }
 
-                    /* Footnote Paragraph */
                     .launch-auth-popup-footnote {
-                        font-size: 0.75rem; /* Tailwind: text-xs */
-                        color: #6b7280; /* Tailwind: text-gray-500 */
+                        font-size: 0.75rem; 
+                        color: #6b7280; 
                         position: absolute;
-                        left: 1.5rem; /* Tailwind: px-6 */
+                        left: 1.5rem; 
                         right: 1.5rem;
-                        bottom: 1rem; /* Tailwind: pb-4 */
+                        bottom: 1rem; 
                         text-align: center;
                         line-height: 1.4;
-                        margin: 0; /* Remove default margin */
+                        margin: 0; 
                     }
 
-                    /* Close Button */
                     dialog .close-btn {
                         position: absolute;
-                        right: 0.75rem; /* Tailwind: top-3 right-3 */
+                        right: 0.75rem; 
                         top: 0.75rem;
-                        font-size: 1rem; /* Tailwind: text-base */
-                        color: #9ca3af; /* Tailwind: text-gray-400 */
+                        font-size: 1rem; 
+                        color: #9ca3af; 
                         background-color: transparent;
                         border: none;
-                        padding: 0.25rem; /* Tailwind: p-1 */
+                        padding: 0.25rem; 
                         line-height: 1;
                         cursor: pointer;
-                        border-radius: 9999px; /* Tailwind: rounded-full */
+                        border-radius: 9999px; 
                         transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
                     }
                     dialog .close-btn:hover {
-                        color: #4b5563; /* Tailwind: hover:text-gray-600 */
-                        background-color: #f3f4f6; /* Tailwind: hover:bg-gray-100 */
+                        color: #4b5563; 
+                        background-color: #f3f4f6; 
                     }
                     dialog .close-btn:focus-visible {
                         outline: 2px solid transparent;
                         outline-offset: 2px;
-                        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* Match button focus */
+                        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); 
                     }
 
-
-                    /* Responsive Adjustments */
                     @media (max-width: 480px) {
                         .puter-dialog-content {
-                            padding: 1.5rem; /* Tailwind: p-6 */
-                            /* Ensure footnote doesn't overlap buttons */
-                            padding-bottom: 4.5rem; /* Adjust as needed */
+                            padding: 1.5rem; 
+
+                            padding-bottom: 4.5rem; 
                         }
                         dialog .buttons {
-                            flex-direction: column; /* Stack buttons vertically */
-                            gap: 0.5rem; /* Tailwind: gap-2 */
-                            width: 100%; /* Make container full width */
+                            flex-direction: column; 
+                            gap: 0.5rem; 
+                            width: 100%; 
                         }
-                        /* Make buttons full width on mobile */
+
                         dialog .button {
                             width: 100%;
                         }
                         .launch-auth-popup-footnote {
-                            left: 1rem; /* Tailwind: px-4 */
+                            left: 1rem; 
                             right: 1rem;
-                            bottom: 0.75rem; /* Tailwind: pb-3 */
+                            bottom: 0.75rem; 
                         }
                         dialog p.about {
                             margin-bottom: 1rem;
@@ -335,16 +315,14 @@ export default function Home() {
                         }
                     }
 
-                    /* Remove unused complex styles */
                     .button-action, .button-danger, .button-primary, .button-block,
                     .button-giant, .button-jumbo, .button-large, .button-normal,
                     .button-small, .button-tiny,
-                    dialog .button-auth /* Handled by button base and container gap */
+                    dialog .button-auth 
                     {
-                        /* Styles for these are now handled by base .button and specific IDs/classes above */
-                        /* Or they are simply removed if not needed */
+
                     }
-                    /* Remove error styles if not used */
+
                     .error-container h1 { display: none; }
                 `;
                 }
@@ -353,11 +331,11 @@ export default function Home() {
                   logo.removeAttribute("href");
 
                   const img = logo.children[0] as HTMLImageElement;
-                  img.src = ""; //Remove image; just setting image will briefly flicker the original image, as the image takes time to load
+                  img.src = ""; 
                   img.src = "logo.png";
                   img.style.margin = "10px auto";
                 }
-                
+
                 if (exit) {
                   exit.remove();
                 }
@@ -389,10 +367,9 @@ export default function Home() {
 
         observer.observe(document.body, { childList: true, subtree: false });
 
-        // --- Send Test Message ---
         console.log("Home Page: Sending test message via Puter...");
         if (puter && puter.ai && typeof puter.ai.chat === 'function') {
-            puter.ai.chat("Knock knock!") // Specific test message for this page
+            puter.ai.chat("Knock knock!") 
               .then((response: any) => {
                 console.log("Home Page Puter AI Response:", response?.message?.content || 'No content');
               })
@@ -404,21 +381,19 @@ export default function Home() {
         }
     };
 
-    // Check if Puter is loaded, then setup observer and send message
     const checkPuterAndInit = () => {
         if (typeof puter !== 'undefined') {
             console.log("Home Page: Puter JS object found.");
             setupPuterObserver();
         } else {
             console.warn("Home Page: Puter JS object not found yet, retrying...");
-            puterCheckTimer = setTimeout(checkPuterAndInit, 100); // Retry after delay
+            puterCheckTimer = setTimeout(checkPuterAndInit, 100); 
         }
     };
 
     const setup = window.localStorage.getItem("puter.auth.token")
-    if (!setup) checkPuterAndInit(); // Start the check
+    if (!setup) checkPuterAndInit(); 
 
-    // Cleanup function
     return () => {
       if (observer) {
         console.log("Home Page: Disconnecting Puter dialog observer.");
@@ -428,7 +403,7 @@ export default function Home() {
         clearTimeout(puterCheckTimer);
       }
     };
-  }, []); // Run only once on mount
+  }, []); 
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-50 dark:bg-gray-900">
@@ -443,7 +418,7 @@ export default function Home() {
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            disabled={isLoading} // Disable input while loading
+            disabled={isLoading} 
             className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-transparent dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             } ${
