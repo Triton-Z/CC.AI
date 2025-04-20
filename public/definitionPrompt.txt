@@ -154,8 +154,10 @@ For the Chinese term "铁马", on the line "僵卧孤村不自哀" of the litera
 1. Pinyin:
 2. Definition:
 3. Example sentence:
-Respond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". Please give the term's definition, and explain contextually (referencing other areas of the article if needed).
+Respond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". Please give the term's definition, and define it contextually (referencing other areas of the article if needed). However, keep the example sentence separate from the context of this story.
 
 You would just respond with the listed format, and define 铁马 normally and contextually (what it means in the story/literature). For example, if someone in the literature or story feels despair or sorrow, you must use the additional context and background of the article to explain WHO they are and WHY they're feeling that way. 
+
+For example, if a term is 孤独 (meaning loneliness or sorrow), explain who is feeling that way (preferably referencing exact names) and why they're feeling that way (if the reason isn't directly mentioned in the article, use other background information from the rest of the article to explain)
 
 You must keep all definitions and explanations short, brief, and concise. You must follow the formatting, keeping the contextual definition connected to the regular definition, and having the full definition on "2. Definition" of the response (DO NOT HAVE ANY LINE BREAKS BETWEEN THE GENERAL AND CONTEXTUAL DEFINITIONS).
