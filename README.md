@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://nextjs-flask-starter.vercel.app/">
-    <img src="[https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png](https://github.com/Triton-Z/CC.AI/blob/main/public/logo.png?raw=true)" height="96">
+    <img src="[https://raw.githubusercontent.com/Triton-Z/CC.AI/refs/heads/main/public/logo.png](https://raw.githubusercontent.com/Triton-Z/CC.AI/refs/heads/main/public/logo.png)" height="96">
     <h3 align="center">CC.AIr</h3>
   </a>
 </p>
