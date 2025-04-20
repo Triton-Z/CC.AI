@@ -23,9 +23,11 @@ On localhost, the rewrite will be made to the `127.0.0.1:5328` port, which is wh
 
 In production, the Flask server is hosted as [Python serverless functions](https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/python) on Vercel.
 
+This app also uses [Puter.js](https://docs.puter.com/) to provide simpler and more secure client-based ChatGPT functions.
+
 ## Demo
 
-https://nextjs-flask-starter.vercel.app/
+[https://nextjs-flask-starter.vercel.app/](https://cc-ai.vercel.app/)
 
 ## Deploy Your Own
 
