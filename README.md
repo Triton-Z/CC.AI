@@ -27,7 +27,7 @@ This app also uses [Puter.js](https://docs.puter.com/) to provide simpler and mo
 
 ## Demo
 
-[https://nextjs-flask-starter.vercel.app/](https://cc-ai.vercel.app/)
+[https://cc-ai.vercel.app/](https://cc-ai.vercel.app/)
 
 ## Deploy Your Own
 
