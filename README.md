@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://nextjs-flask-starter.vercel.app/">
     <img src="https://raw.githubusercontent.com/Triton-Z/CC.AI/refs/heads/main/public/logo.png" height="96">
-    <h3 align="center">CC.AIr</h3>
+    <h3 align="center">CC.AI</h3>
   </a>
 </p>
 
