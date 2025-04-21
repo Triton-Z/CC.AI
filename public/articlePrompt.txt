@@ -187,3 +187,13 @@ Expected Output (for the example):
 @@START@@尚思@@END@@ @@START@@为@@END@@ @@START@@国@@END@@ @@START@@戍@@END@@ @@START@@轮台@@END@@。  
 @@START@@夜阑@@END@@ @@START@@卧听@@END@@ @@START@@风吹雨@@END@@，  
 @@START@@铁马@@END@@ @@START@@冰河@@END@@ @@START@@入梦来@@END@@。
+
+For your task, do as instructed for this entire article:
+
+--- START OF ARTICLE CONTEXT ---
+
+${articleText}
+
+--- END OF ARTICLE CONTEXT ---
+
+--- END OF TASK ---

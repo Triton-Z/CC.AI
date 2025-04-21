@@ -224,60 +224,15 @@ export default function ArticlePage() {
         try {
             const entireArticle = window.sessionStorage.getItem("entireArticle");
 
-            const combinedPrompt = `
-                You are a friendly and concise AI assistant expert in Chinese literature, helping English speakers understand specific terms within their original context.
+            const combinedPrompt = await fetch("definitionPrompt.txt");
 
-                You will receive the following information:
+            const prompt = await combinedPrompt.text();
 
-                Information Item 1: The full text of a Baidu article about a piece of literature, structured with TITLE, HEADER, SUBHEADING, and TEXT keywords. This entire article serves as the ESSENTIAL CONTEXT for your analysis.
-
-                Information Item 2: A specific Chinese Term selected by the user.
-
-                Information Item 3: The specific Line from the literary work itself where the Term appears.
-
-                Your Task:
-                Analyze the Term within the Line. You MUST use the entire provided article for deep contextual understanding. Provide the following information concisely:
-
-                1.  Pinyin:
-                    Provide the standard Hanyu Pinyin for the Term.
-
-                2.  Definition:
-                    Start with the general, dictionary-like meaning of the Term. Immediately continue on the same line (NO PARAGRAPH BREAK) with its specific meaning and significance in the context of this literary work and this specific Line. Explain WHY the term is used here. If the term describes an emotion, state, or action, explain WHO (e.g., the author, a character) it applies to and WHY they are feeling or acting that way, drawing evidence directly from the provided article's context sections. If the term carries implied meanings or references historical or cultural elements mentioned in the article, explain those briefly.
-
-                3.  Example sentence:
-                    Create a simple, clear example sentence using the Term. This sentence should illustrate the general meaning and be COMPLETELY UNRELATED to the specific literary work provided in the article.
-
-                Output Format Requirements:
-                -   Respond ONLY with the three requested items.
-                -   Each item MUST start on a new line, exactly as specified below (without the description):
-                    1. Pinyin: [Your response here]
-                    2. Definition: [Your response here]
-                    3. Example sentence: [Your response here]
-                -   The complete definition (general + contextual) MUST be on the single line following "2. Definition:". Do NOT use line breaks within the definition itself.
-                -   You must keep all explanations brief, concise, and to the point. Additionally, avoid conversational text or introductions.
-
-                --- START OF ARTICLE CONTEXT ---
-
-                ${entireArticle}
-
-                --- END OF ARTICLE CONTEXT ---
-
-                --- TERM AND LINE FOR ANALYSIS ---
-
-                Term: ${term}
-                Line: ${cleanedLineContent}
-
-                --- END OF TASK ---
-            `;
+            const finalPrompt = prompt.replace(/\${([^}]*)}/g, (m, n) => eval(n));
 
             const puterInstance = (window as any).puter;
 
-            const response = await puterInstance.ai.chat([
-                {
-                    role: 'user',
-                    content: combinedPrompt
-                }
-            ]);
+            const response = await puterInstance.ai.chat(finalPrompt);
 
             if (currentFetchId.current === fetchId) {
                 const fullResponseText = response?.message?.content || response?.text || "";
