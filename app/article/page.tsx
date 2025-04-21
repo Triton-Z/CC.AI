@@ -223,7 +223,7 @@ export default function ArticlePage() {
 
         try {
 
-            const combinedPrompt = `For the Chinese term "${term}":\n1. Pinyin:\n2. Definition:\n3. Example sentence:\nRespond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". Respond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". You must give the term's definition, and define it contextually (referencing other areas of the article if needed). However, keep the example sentence separate from the context of this story.`;
+            const combinedPrompt = `For the Chinese term "${term}" in the line "${cleanedLineContent}" of the literature:\n1. Pinyin:\n2. Definition:\n3. Example sentence:\nRespond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". Respond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". You must give the term's definition, and define it contextually (referencing other areas of the article if needed). However, keep the example sentence separate from the context of this story.`;
 
             const definitionPrompt = await fetch("definitionPrompt.txt");
 
