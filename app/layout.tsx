@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'CC.AI',
-  description: 'A Chinese learning site built with Next.js, Flask.py, and Puter.js',
+  description: 'A Chinese learning site built with Next.js, Flask.py, and Puter.js.',
 }
 
 export default function RootLayout({
