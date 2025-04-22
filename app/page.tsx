@@ -66,16 +66,9 @@ export default function Home() {
 
         const prompt = await fetchPrompt.text();
 
-        await puter.ai.chat([
-            {
-                role: 'system',
-                content: prompt
-            },
-            {
-                role: 'user',
-                content: articleText
-            }
-        ], {
+        const finalPrompt = prompt.replace(/\${([^}]*)}/g, (m, n) => eval(n));
+
+        await puter.ai.chat(finalPrompt, {
           model: "gpt-4o"
         })
         .then(response => {

@@ -222,31 +222,17 @@ export default function ArticlePage() {
         setPopupError(null); setIsPopupVisible(true);
 
         try {
+            const entireArticle = window.sessionStorage.getItem("entireArticle");
 
-            const combinedPrompt = `For the Chinese term "${term}" in the line "${cleanedLineContent}" of the literature:\n1. Pinyin:\n2. Definition:\n3. Example sentence:\nRespond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". Respond with each item on a new line, starting exactly with "1. Pinyin:", "2. Definition:", "3. Example sentence:". You must give the term's definition, and define it contextually (referencing other areas of the article if needed). However, keep the example sentence separate from the context of this story.`;
+            const combinedPrompt = await fetch("definitionPrompt.txt");
 
-            const definitionPrompt = await fetch("definitionPrompt.txt");
+            const prompt = await combinedPrompt.text();
 
-            const prompt = await definitionPrompt.text();
-
-            const entireArticle = window.sessionStorage.getItem("entireArticle")
+            const finalPrompt = prompt.replace(/\${([^}]*)}/g, (m, n) => eval(n));
 
             const puterInstance = (window as any).puter;
 
-            const response = await puterInstance.ai.chat([
-                {
-                    role: 'system',
-                    content: prompt
-                },
-                {
-                    role: 'system',
-                    content: `Here is the full article: \n\n${entireArticle}`
-                },
-                {
-                    role: 'user',
-                    content: combinedPrompt
-                }
-            ]);
+            const response = await puterInstance.ai.chat(finalPrompt);
 
             if (currentFetchId.current === fetchId) {
                 const fullResponseText = response?.message?.content || response?.text || "";
