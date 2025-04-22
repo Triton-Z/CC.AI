@@ -43,7 +43,7 @@ Process each cleaned line from Step 3:
 Step 5: Construct Final Output
 - Start with the Title (from Step 1) on the first line.
 - Add a blank line after the title if appropriate based on the structure found (e.g., if 其一 follows).
-- Append the processed lines (from Step 4), ensuring original line breaks and the relative positioning of standalone markers (like 其一) are perfectly preserved.
+- Append the processed Lines (from Step 4), ensuring original line breaks and the relative positioning of standalone markers (like 其一) are perfectly preserved.
 - Preserve structural markers within the text, but format the text to improve readability.
 
 Output Requirements:
