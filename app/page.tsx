@@ -114,100 +114,153 @@ export default function Home() {
                 if (style) {
                   style.innerHTML = `
 
+                    :host {
+                        /* Light Theme Defaults */
+                        --dialog-bg: white;
+                        --dialog-text: #374151; /* gray-700 */
+                        --dialog-text-secondary: #4b5563; /* gray-600 */
+                        --dialog-text-muted: #6b7280; /* gray-500 */
+                        --dialog-border: #e5e7eb; /* gray-200 */
+                        --dialog-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+                        --link-color: #d7281d;
+                        --link-hover-color: #ee3e31;
+                        --button-primary-bg: #ee3d31;
+                        --button-primary-text: white;
+                        --button-primary-hover-bg: #d7281d;
+                        --button-primary-active-bg: #b92318;
+                        --close-btn-text: #9ca3af; /* gray-400 */
+                        --close-btn-hover-bg: #f3f4f6; /* gray-100 */
+                        --close-btn-hover-text: #4b5563; /* gray-600 */
+                        --focus-ring-color: rgba(96, 165, 250, 0.5); /* blue-400 alpha */
+                        --logo-filter: none;
+                    }
+
+                    @media (prefers-color-scheme: dark) {
+                        :host {
+                        /* Dark Theme Overrides */
+                        --dialog-bg: #1f2937; /* gray-800 */
+                        --dialog-text: #d1d5db; /* gray-300 */
+                        --dialog-text-secondary: #9ca3af; /* gray-400 */
+                        --dialog-text-muted: #6b7280; /* gray-500 */
+                        --dialog-border: #4b5563; /* gray-600 */
+                        --dialog-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.6); /* Darker Shadow */
+                        --link-color: #fca5a5; /* red-300 */
+                        --link-hover-color: #f87171; /* red-400 */
+                        /* Keep button colors vibrant */
+                        --button-primary-bg: #ee3d31;
+                        --button-primary-text: white;
+                        --button-primary-hover-bg: #d7281d;
+                        --button-primary-active-bg: #b92318;
+                        --close-btn-text: #9ca3af; /* gray-400 */
+                        --close-btn-hover-bg: #374151; /* gray-700 */
+                        --close-btn-hover-text: #f3f4f6; /* gray-100 */
+                        /* Optional: Invert logo if it's dark on transparent */
+                        /* --logo-filter: invert(1) hue-rotate(180deg); */
+                        }
+                    }
+
+                    /* Apply Variables to Styles */
                     dialog {
                         background: transparent;
                         border: none;
                         box-shadow: none;
                         outline: none;
-                        padding: 1rem; 
+                        padding: 1rem;
                     }
 
                     .puter-dialog-content {
-                        background-color: white;
-                        border-radius: 0.75rem; 
-                        padding: 2rem; 
-                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); 
-                        color: #374151; 
+                        background-color: var(--dialog-bg);
+                        color: var(--dialog-text);
+                        border: 1px solid var(--dialog-border);
+                        box-shadow: var(--dialog-shadow);
+                        border-radius: 0.75rem;
+                        padding: 2rem;
                         position: relative;
-                        border: 1px solid #e5e7eb; 
-
-                        max-width: 500px; 
-                        margin: auto; 
-                        font-family: "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif; 
-                        -webkit-font-smoothing: antialiased; 
+                        max-width: 500px;
+                        margin: auto;
+                        font-family: "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif;
+                        -webkit-font-smoothing: antialiased;
                     }
 
                     dialog * {
                         font-family: inherit;
-                        box-sizing: border-box; 
+                        box-sizing: border-box;
                     }
 
                     .puter-dialog-content > a[href*="puter.com"] {
                         display: block;
-                        width: 64px; 
+                        width: 64px;
                         height: 64px;
-                        margin: 0 auto 1rem auto; 
-                        border-radius: 0.375rem; 
+                        margin: 0 auto 1rem auto;
+                        border-radius: 0.375rem;
                         outline: none;
                         border: none;
                     }
+                    /* Style the image inside the logo link */
+                    .puter-dialog-content > a[href*="puter.com"] > img {
+                         display: block;
+                         width: 100%;
+                         height: 100%;
+                         object-fit: contain;
+                         filter: var(--logo-filter);
+                         /* Removed margin: 10px auto from original */
+                    }
+
 
                     dialog p.about {
                         text-align: center;
-                        font-size: 1rem; 
-                        line-height: 1.5; 
-                        color: #4b5563; 
-                        padding: 0; 
-                        margin: 20px auto 1.5rem auto; 
+                        font-size: 1rem;
+                        line-height: 1.5;
+                        color: var(--dialog-text-secondary);
+                        padding: 0;
+                        margin: 20px auto 1.5rem auto;
                     }
 
                     dialog .buttons {
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        gap: 0.75rem; 
-                        margin-top: 1.5rem; 
-                        margin-bottom: 1rem; 
-                        flex-wrap: wrap; 
+                        gap: 0.75rem;
+                        margin-top: 1.5rem;
+                        margin-bottom: 1rem;
+                        flex-wrap: wrap;
                     }
 
                     dialog .button {
-                        display: inline-flex; 
+                        display: inline-flex;
                         align-items: center;
                         justify-content: center;
-                        padding: 0.625rem 1.25rem; 
-                        font-size: 0.875rem; 
-                        font-weight: 500; 
-                        line-height: 1.25rem; 
-                        border-radius: 0.375rem; 
-                        border: 1px solid transparent; 
+                        padding: 0.625rem 1.25rem;
+                        font-size: 0.875rem;
+                        font-weight: 500;
+                        line-height: 1.25rem;
+                        border-radius: 0.375rem;
+                        border: 1px solid transparent;
                         cursor: pointer;
                         text-align: center;
                         text-decoration: none;
                         outline: none;
                         transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
                         -webkit-font-smoothing: antialiased;
-                        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); 
-
+                        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
                     }
 
                     dialog .button:focus-visible {
                         outline: 2px solid transparent;
                         outline-offset: 2px;
-                        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); 
+                        box-shadow: 0 0 0 3px var(--focus-ring-color);
                     }
 
                     #launch-auth-popup {
-                        color: white;
-                        background-color:rgb(238, 61, 49); 
+                        color: var(--button-primary-text);
+                        background-color: var(--button-primary-bg);
                         border-color: transparent;
-
                     }
                     #launch-auth-popup:hover {
-                        background-color: #d7281d; 
+                        background-color: var(--button-primary-hover-bg);
                     }
                     #launch-auth-popup:active {
-                        background-color:rgb(185, 35, 24); 
+                        background-color: var(--button-primary-active-bg);
                     }
 
                     dialog .button:disabled,
@@ -217,90 +270,92 @@ export default function Home() {
                         cursor: not-allowed;
                         pointer-events: none;
                         box-shadow: none;
-
                     }
 
+                    /* Links inside the dialog */
                     dialog a, dialog a:visited {
-                        color: #d7281d; 
+                        color: var(--link-color);
                         text-decoration: none;
-                        font-weight: 500; 
+                        font-weight: 500;
+                        border-radius: 0.25rem; /* For focus visibility */
                     }
                     dialog a:hover {
                         text-decoration: underline;
-                        color:rgb(238, 62, 50); 
+                        color: var(--link-hover-color);
                     }
                     dialog a:focus-visible {
-                        outline: 2px solid #93c5fd; 
+                        outline: 2px solid var(--focus-ring-color);
                         outline-offset: 2px;
-                        border-radius: 0.25rem; 
                     }
-                    .puter-dialog-content a:focus{ 
-                        outline: none;
+                    .puter-dialog-content a:focus {
+                        outline: none; /* Rely on focus-visible */
                     }
 
                     p[style*="Powered by"] {
                         text-align: center;
-                        font-size: 0.875rem; 
-                        color: #6b7280; 
-                        margin-top: 1rem; 
+                        font-size: 0.875rem;
+                        color: var(--dialog-text-muted);
+                        margin-top: 1rem;
                         margin-bottom: 0;
                     }
 
                     .launch-auth-popup-footnote {
-                        font-size: 0.75rem; 
-                        color: #6b7280; 
+                        font-size: 0.75rem;
+                        color: var(--dialog-text-muted);
                         position: absolute;
-                        left: 1.5rem; 
+                        left: 1.5rem;
                         right: 1.5rem;
-                        bottom: 1rem; 
+                        bottom: 1rem;
                         text-align: center;
                         line-height: 1.4;
-                        margin: 0; 
+                        margin: 0;
                     }
 
+                    /* Assuming the original exit button has class 'close-btn' or similar */
                     dialog .close-btn {
                         position: absolute;
-                        right: 0.75rem; 
+                        right: 0.75rem;
                         top: 0.75rem;
-                        font-size: 1rem; 
-                        color: #9ca3af; 
+                        font-size: 1rem;
+                        color: var(--close-btn-text);
                         background-color: transparent;
                         border: none;
-                        padding: 0.25rem; 
+                        padding: 0.25rem;
                         line-height: 1;
                         cursor: pointer;
-                        border-radius: 9999px; 
+                        border-radius: 9999px;
                         transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
                     }
                     dialog .close-btn:hover {
-                        color: #4b5563; 
-                        background-color: #f3f4f6; 
+                        color: var(--close-btn-hover-text);
+                        background-color: var(--close-btn-hover-bg);
                     }
                     dialog .close-btn:focus-visible {
                         outline: 2px solid transparent;
                         outline-offset: 2px;
-                        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); 
+                        box-shadow: 0 0 0 3px var(--focus-ring-color);
                     }
 
                     @media (max-width: 480px) {
                         .puter-dialog-content {
-                            padding: 1.5rem; 
-
-                            padding-bottom: 4.5rem; 
+                            padding: 1.5rem;
+                            /* Adjust padding-bottom if footer is removed or present */
+                            padding-bottom: ${footer ? '1.5rem' : '4.5rem'}; /* Example: less padding if footer removed */
                         }
                         dialog .buttons {
-                            flex-direction: column; 
-                            gap: 0.5rem; 
-                            width: 100%; 
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            width: 100%;
                         }
-
-                        dialog .button {
+                        /* Ensure button width is set correctly on mobile */
+                        dialog .button,
+                        #launch-auth-popup {
                             width: 100%;
                         }
                         .launch-auth-popup-footnote {
-                            left: 1rem; 
+                            left: 1rem;
                             right: 1rem;
-                            bottom: 0.75rem; 
+                            bottom: 0.75rem;
                         }
                         dialog p.about {
                             margin-bottom: 1rem;
@@ -311,13 +366,13 @@ export default function Home() {
                     .button-action, .button-danger, .button-primary, .button-block,
                     .button-giant, .button-jumbo, .button-large, .button-normal,
                     .button-small, .button-tiny,
-                    dialog .button-auth 
+                    dialog .button-auth
                     {
-
+                        /* Minimal overrides if necessary */
                     }
 
                     .error-container h1 { display: none; }
-                `;
+                  `;
                 }
 
                 if (logo) {
