@@ -141,6 +141,7 @@ export default function ArticlePage() {
 
     const [articleContent, setArticleContent] = useState('Loading article...');
     const [articleTitle, setArticleTitle] = useState('');
+    const [articleAuthor, setArticleAuthor] = useState('');
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [popupTerm, setPopupTerm] = useState('');
     const [popupPinyin, setPopupPinyin] = useState<string | null>(null);
@@ -160,14 +161,16 @@ export default function ArticlePage() {
         const content = sessionStorage.getItem('annotatedWorkText') || sessionStorage.getItem('articleContent') || 'Article content not found in session.';
         const lines = content.split('\n');
         const firstNonEmptyLineIndex = lines.findIndex(line => line.trim() !== '');
-        let title = 'Article'; let contentBody = content;
+        let title = 'Article'; let author = 'Author'; let contentBody = content;
         if (firstNonEmptyLineIndex !== -1) {
             title = lines[firstNonEmptyLineIndex];
-            contentBody = lines.slice(firstNonEmptyLineIndex + 1).join('\n');
+            author = lines[firstNonEmptyLineIndex + 1]
+            contentBody = lines.slice(firstNonEmptyLineIndex + 2).join('\n');
         } else {
-            title = 'Article'; contentBody = 'Article content not found or empty.';
+            title = 'Article'; author = 'Author'; contentBody = 'Article content not found or empty.';
         }
         setArticleTitle(title);
+        setArticleAuthor(author);
         setArticleContent(contentBody);
     }, []);
     useEffect(() => { 
@@ -331,9 +334,12 @@ export default function ArticlePage() {
     return (
         <main className="flex min-h-screen flex-col items-center p-8 sm:p-16 md:p-24 bg-gray-50 dark:bg-gray-900">
             <div className="w-full max-w-8xl bg-white dark:bg-gray-800 p-12 md:p-16 rounded-lg shadow-lg relative">
-                <h1 className="text-6xl md:text-7xl font-semibold text-gray-800 dark:text-white mb-12 md:mb-16 text-center">
+                <h1 className="text-6xl md:text-7xl font-semibold text-gray-800 dark:text-white mb-1 md:mb-2 text-center">
                     {renderAnnotatedLine(articleTitle, 'title-line')}
                 </h1>
+                <p className="text-center text-base italic text-gray-500 dark:text-gray-400 mb-10 md:mb-14">
+                   {renderAnnotatedLine(articleAuthor, 'author-line')}
+                </p>
                 {renderContent()}
             </div>
 
