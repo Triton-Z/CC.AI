@@ -8,11 +8,6 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
-@app.route("/api/python")
-def hello_world():
-
-    return "<p>Hello, World!</p>"
-
 @app.route("/api/process-url", methods=['POST'])
 def process_url():
     """
@@ -50,9 +45,13 @@ def process_url():
         soup = BeautifulSoup(response.text, "html.parser")
 
         title_element = soup.find("h1", class_="J-lemma-title")
+        author_element = soup.find("div", id="lemmaDesc")
 
         article_title = title_element.get_text(strip=True) if title_element else "Title Not Found"
         logging.info(f"Extracted title: {article_title}")
+
+        article_author = author_element.get_text(strip=True) if author_element else "Author Not Found"
+        logging.info(f"Extracted author: {article_author}")
 
         tagged_elements = soup.find_all(attrs={"data-tag": True})
         logging.info(f"Found {len(tagged_elements)} elements with data-tag.")
@@ -101,7 +100,7 @@ def process_url():
 
              return jsonify({"error": "Failed to parse article structure."}), 500
 
-        response_lines = [f"TITLE {article_title}", ""] 
+        response_lines = [f"TITLE {article_title}", f"AUTHOR {article_author}", ""] 
         for element in full_structure:
 
             response_lines.append(f"{element['type']} {element['text']}")

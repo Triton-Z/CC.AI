@@ -3,16 +3,20 @@ Input Format:
 
 The input text uses these keywords on separate lines to denote structure:
 1. TITLE: The title of the literary work.
-2. HEADER: A major section heading.
-3. SUBHEADING: A subsection heading.
-4. TEXT: A paragraph or line of text content.
+2. AUTHOR: The author of the literary work.
+3. HEADER: A major section heading.
+4. SUBHEADING: A subsection heading.
+5. TEXT: A paragraph or line of text content.
 
 Your Task (Execute Sequentially):
 
 Step 1: Identify and Store Title
 Locate the line starting with TITLE. Extract the text following TITLE and store it as the work's title.
 
-Step 2: Locate the Literary Work
+Step 2: Identify and Store Author
+Locate the line starting with AUTHOR. Extract the text following AUTHOR and store it as the work's author.
+
+Step 3: Locate the Literary Work
 This is the most crucial step. Find the sequence of TEXT lines comprising the original literary work using the following prioritized logic:
 
 Priority 1: Specific Headers
@@ -24,7 +28,7 @@ If Priority 1 fails, look for a `HEADER` that likely introduces the original tex
 Priority 3: Structural Clues
 If neither header approach works, examine the `TEXT` blocks following the initial introductory `TEXT` (the description). Look for a sequence of `TEXT` lines that structurally resembles the literary form (e.g., short lines, consistent meter typical of classical poetry, repeated title, presence of stanza markers like `其一`). This sequence is the literary work. It often starts after the main introductory description. Collect these consecutive `TEXT` lines until the structure changes (e.g., longer explanatory paragraphs begin) or a `HEADER` or `SUBHEADING` appears.
 
-Step 3: Isolate and Clean Literature Lines
+Step 4: Isolate and Clean Literature Lines
 Once the sequence of TEXT lines representing the literature is identified:
 For each line in this sequence:
 - Remove the leading TEXT.
@@ -32,28 +36,30 @@ For each line in this sequence:
 - Trim leading/trailing whitespace.
 - Keep standalone structural markers like `其一`, `其二` if they were part of the original `TEXT` lines, but clean them like any other line (remove `TEXT ` prefix).
 
-Step 4: Segment and Format
-Process each cleaned line from Step 3:
+Step 5: Segment and Format
+Process each cleaned line from Step 4:
 - If the line is a standalone structural marker (like `其一`, `其二`), leave it as is on its own line. Do NOT wrap it.
 - If the line contains literary text:
     -- Perform accurate Chinese word segmentation. Segment every form of Chinese grammar (subjects, adverbs, verbs, compliments, objects) as individual terms.
     -- Wrap every segmented term with `@@START@@` before it and `@@END@@` after it.
     -- Insert a single space between the `@@END@@` of one term and the `@@START@@` of the next term on the same line.
 
-Step 5: Construct Final Output
+Step 6: Construct Final Output
 - Start with the Title (from Step 1) on the first line.
-- Add a blank line after the title if appropriate based on the structure found (e.g., if 其一 follows).
-- Append the processed Lines (from Step 4), ensuring original line breaks and the relative positioning of standalone markers (like 其一) are perfectly preserved.
+- Add the Author (from Step 2) on the second line.
+- Add a blank line after the author if appropriate based on the structure found (e.g., if 其一 follows).
+- Append the processed Lines (from Step 5), ensuring original line breaks and the relative positioning of standalone markers (like 其一) are perfectly preserved.
 - Preserve structural markers within the text, but format the text to improve readability.
 
 Output Requirements:
 - Output ONLY the final formatted text. No explanations, apologies, or extra conversational text.
-- Do NOT include the TITLE, HEADER, SUBHEADING, TEXT keywords from the input in your final output.
-- If, after trying all location logic (Step 2), you cannot confidently identify the literary work, output the single line: ERROR: Could not reliably locate the literary work section.
+- Do NOT include the TITLE, AUTHOR, HEADER, SUBHEADING, TEXT keywords from the input in your final output.
+- If, after trying all location logic (Step 3), you cannot confidently identify the literary work, output the single line: ERROR: Could not reliably locate the literary work section.
 
 Example Input:
 
 TITLE 十一月四日风雨大作二首
+AUTHOR 陆游创作的七言绝句
 TEXT 《十一月四日风雨大作二首》是南宋诗人陆游创作的七言绝句组诗作品。是绍熙三年（1192年）十一月作者退居家乡山阴时所作。第一首诗写大雨和诗人所处，第二首诗表明陆游投身抗战、为国雪耻的壮志至老不衰。但是，诗人空怀壮志，却不为朝廷所重，只能“僵卧孤村”，把为国家恢复中原的理想寄托到梦境之中。感情深沉悲壮，凝聚了诗人的爱国主义激情。
 HEADER 作品原文
 TEXT 十一月四日风雨大作
@@ -175,6 +181,7 @@ TEXT 陆游
 Expected Output (for the example):
 
 十一月四日风雨大作
+陆游创作的七言绝句
 
 其一  
 @@START@@风@@END@@ @@START@@卷@@END@@ @@START@@江湖@@END@@ @@START@@雨@@END@@ @@START@@暗@@END@@ @@START@@村@@END@@，  
