@@ -1,6 +1,6 @@
 "use client"; 
 
-import React, { useState, useEffect, Fragment, useRef, useLayoutEffect } from 'react'; 
+import React, { useState, useEffect, Fragment, useRef } from 'react'; 
 import Popup from '../components/popup';
 
 export default function ArticlePage() {

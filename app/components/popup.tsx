@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment, useRef, useLayoutEffect } from 'react'; 
+import React, { useState, useRef, useLayoutEffect } from 'react'; 
 import Spinner from './spinner';
 
 interface PopupProps {
