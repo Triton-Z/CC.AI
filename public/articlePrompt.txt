@@ -41,8 +41,8 @@ Process each cleaned line from Step 4:
 - If the line is a standalone structural marker (like `其一`, `其二`), leave it as is on its own line. Do NOT wrap it.
 - If the line contains literary text:
     -- Perform accurate Chinese word segmentation. Segment every form of Chinese grammar (subjects, adverbs, verbs, compliments, objects) as individual terms.
-    -- Wrap every segmented term with `@@START@@` before it and `@@END@@` after it.
-    -- Insert a single space between the `@@END@@` of one term and the `@@START@@` of the next term on the same line.
+    -- Wrap every segmented term with `<` before it and `>` after it.
+    -- Insert a single space between the `>` of one term and the `<` of the next term on the same line.
 
 Step 6: Construct Final Output
 - Start with the Title (from Step 1) on the first line.
@@ -184,16 +184,16 @@ Expected Output (for the example):
 陆游创作的七言绝句
 
 其一  
-@@START@@风@@END@@ @@START@@卷@@END@@ @@START@@江湖@@END@@ @@START@@雨@@END@@ @@START@@暗@@END@@ @@START@@村@@END@@，  
-@@START@@四@@END@@ @@START@@山@@END@@ @@START@@声@@END@@ @@START@@作@@END@@ @@START@@海涛@@END@@ @@START@@翻@@END@@。  
-@@START@@溪柴@@END@@ @@START@@火@@END@@ @@START@@软@@END@@ @@START@@蛮毡@@END@@ @@START@@暖@@END@@，  
-@@START@@我@@END@@ @@START@@与@@END@@ @@START@@狸奴@@END@@ @@START@@不@@END@@ @@START@@出@@END@@ @@START@@门@@END@@。
+<风> <卷> <江湖> <雨> <暗> <村>，  
+<四> <山> <声> <作> <海涛> <翻>。  
+<溪柴> <火> <软> <蛮毡> <暖>，  
+<我> <与> <狸奴> <不> <出> <门>。
 
 其二  
-@@START@@僵卧@@END@@ @@START@@孤村@@END@@ @@START@@不@@END@@ @@START@@自哀@@END@@，  
-@@START@@尚思@@END@@ @@START@@为@@END@@ @@START@@国@@END@@ @@START@@戍@@END@@ @@START@@轮台@@END@@。  
-@@START@@夜阑@@END@@ @@START@@卧听@@END@@ @@START@@风吹雨@@END@@，  
-@@START@@铁马@@END@@ @@START@@冰河@@END@@ @@START@@入梦来@@END@@。
+<僵卧> <孤村> <不> <自哀>，  
+<尚思> <为> <国> <戍> <轮台>。  
+<夜阑> <卧听> <风吹雨>，  
+<铁马> <冰河> <入梦来>。
 
 For your task, do as instructed for this entire article:
 

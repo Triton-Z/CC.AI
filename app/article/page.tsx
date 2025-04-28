@@ -121,7 +121,7 @@ export default function ArticlePage() {
         const target = event.currentTarget;
         setActiveOccurrenceKey(occurrenceKey);
 
-        const cleanedLineContent = lineContent.replace(/@@START@@|@@END@@/g, '').replaceAll(" ", "");
+        const cleanedLineContent = lineContent.replace(/<|>/g, '').replaceAll(" ", "");
 
         if (termCache[occurrenceKey]) {
 
@@ -214,17 +214,17 @@ export default function ArticlePage() {
 
     const renderAnnotatedLine = (line: string, baseKey: string) => {
         if (!line) return null;
-        if (!line.includes("@@START@@")) {
+        if (!line.includes("<")) {
             return <Fragment key={`${baseKey}-plain`}>{line}</Fragment>;
         }
-        const parts = line.split(/(@@START@@|@@END@@)/g);
+        const parts = line.split(/(<|>)/g);
         let isTerm = false;
 
         const elements: React.ReactNode[] = [];
         for (let i = 0; i < parts.length; i++) {
             const part = parts[i];
-            if (part === '@@START@@') { isTerm = true; }
-            else if (part === '@@END@@') { isTerm = false; }
+            if (part === '<') { isTerm = true; }
+            else if (part === '>') { isTerm = false; }
             else if (part) {
                 if (isTerm) {
                     const occurrenceKey = `${baseKey}-term-${i}`;
