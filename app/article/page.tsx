@@ -22,6 +22,8 @@ export default function ArticlePage() {
     const puterCheckTimer = useRef<NodeJS.Timeout | null>(null);
     type TermCache = Record<string, { pinyin: string | null; definition: string | null; example: string | null }>;
     const [termCache, setTermCache] = useState<TermCache>({});
+    const synthRef = useRef<SpeechSynthesis | null>(null);
+    const selectedVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
 
     useEffect(() => { 
         const content = sessionStorage.getItem('annotatedWorkText') || sessionStorage.getItem('articleContent') || 'Article content not found in session.';
@@ -60,6 +62,60 @@ export default function ArticlePage() {
             }
         };
     }, [isPuterSdkReady]);
+    useEffect(() => {
+        // Check if Speech Synthesis is supported
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            synthRef.current = window.speechSynthesis; // Store the synth object
+
+            const loadVoices = () => {
+                if (!synthRef.current) return; // Safety check
+
+                const voices = synthRef.current.getVoices();
+                console.log("Available Voices:", voices); // Log available voices
+
+                if (voices.length > 0) {
+                    // --- Select Voice (Example: Index 4, ADD SAFETY CHECKS) ---
+                    // IMPORTANT: Voice indices can vary wildly between browsers/OS/updates.
+                    // Relying on a fixed index like [4] is NOT reliable for production.
+                    // You should ideally filter by language ('lang') or name ('name')
+                    // For now, we'll use index 4 with checks.
+                    const desiredVoiceIndex = 4; // As specified in your example
+                    if (voices.length > desiredVoiceIndex) {
+                        selectedVoiceRef.current = voices[desiredVoiceIndex];
+                        console.log("Selected Voice (Index 4):", selectedVoiceRef.current);
+                    } else if (voices.length > 0) {
+                         // Fallback: Select the first available voice if index 4 is invalid
+                        selectedVoiceRef.current = voices[0];
+                        console.warn(`Voice index ${desiredVoiceIndex} out of bounds. Falling back to first voice:`, selectedVoiceRef.current);
+                    } else {
+                        console.warn("No voices available even after voiceschanged.");
+                        selectedVoiceRef.current = null;
+                    }
+                    // --- End Voice Selection ---
+
+                    // Optional: Remove listener after voices load if you only need it once
+                    // synthRef.current.removeEventListener('voiceschanged', loadVoices);
+                } else {
+                    console.log("Voices list still empty, waiting for 'voiceschanged' event...");
+                }
+            };
+
+            // Add event listener for when voices change/load
+            synthRef.current.addEventListener('voiceschanged', loadVoices);
+
+            // Call once immediately in case voices are already loaded
+            loadVoices();
+
+            // Cleanup: Remove event listener when component unmounts
+            return () => {
+                if (synthRef.current) {
+                    synthRef.current.removeEventListener('voiceschanged', loadVoices);
+                }
+            };
+        } else {
+            console.warn("Speech Synthesis not supported by this browser.");
+        }
+    }, []);
 
     const handleTermClick = async (term: string, occurrenceKey: string, lineContent: string, event: React.MouseEvent<HTMLSpanElement>) => {
         const target = event.currentTarget;
@@ -138,6 +194,16 @@ export default function ArticlePage() {
         }
     };
 
+    const handleTermRightClick = (term: string, event: React.MouseEvent<HTMLSpanElement>) => {
+        event.preventDefault(); // Prevent the default browser context menu
+        console.log(`Right-clicked term: "${term}"`);
+        
+        const speak = new SpeechSynthesisUtterance(term);
+        speak.voice = selectedVoiceRef.current;
+        synthRef.current?.cancel(); // Cancel any ongoing speech
+        synthRef.current?.speak(speak);
+    };
+
     const closePopup = () => {
         setIsPopupVisible(false);
         setPopupTerm(''); setPopupPinyin(null); setPopupDefinition(null); setPopupExample(null);
@@ -148,7 +214,7 @@ export default function ArticlePage() {
 
     const renderAnnotatedLine = (line: string, baseKey: string) => {
         if (!line) return null;
-        if (!line.includes("@@START@@") || line.startsWith("[AI")) {
+        if (!line.includes("@@START@@")) {
             return <Fragment key={`${baseKey}-plain`}>{line}</Fragment>;
         }
         const parts = line.split(/(@@START@@|@@END@@)/g);
@@ -167,6 +233,7 @@ export default function ArticlePage() {
                         <span key={occurrenceKey}
                             className={`cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 hover:outline hover:outline-1 hover:outline-gray-400 dark:hover:outline-gray-500 rounded-sm transition-colors duration-150 ${!isPuterSdkReady ? 'cursor-not-allowed opacity-70' : ''}`}
                             onClick={(e) => handleTermClick(part, occurrenceKey, line, e)}
+                            onContextMenu={(e) => handleTermRightClick(part, e)}
                             title={isPuterSdkReady ? `Get info for "${part}"` : "AI service initializing..."}
                         >
                             {part}
@@ -203,7 +270,7 @@ export default function ArticlePage() {
                 <h1 className="text-6xl md:text-7xl font-semibold text-gray-800 dark:text-white mb-1 md:mb-2 text-center">
                     {renderAnnotatedLine(articleTitle, 'title-line')}
                 </h1>
-                <p className="text-center text-base italic text-gray-500 dark:text-gray-400 mb-10 md:mb-14">
+                <p className="text-center text-base italic text-gray-500 dark:text-gray-400 mb-2 md:mb-3">
                    {renderAnnotatedLine(articleAuthor, 'author-line')}
                 </p>
                 {renderContent()}
