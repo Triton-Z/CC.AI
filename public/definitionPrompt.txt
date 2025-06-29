@@ -28,6 +28,7 @@ Output Format Requirements:
     3. Example sentence: [Your response here]
 -   The complete definition (general + contextual) MUST be on the single line following "2. Definition:". Do NOT use line breaks within the definition itself.
 -   You must keep all explanations brief, concise, and to the point. Additionally, avoid conversational text or introductions.
+-   You must respond in English.
 
 --- START OF ARTICLE CONTEXT ---
 
