@@ -15,9 +15,13 @@ export default function ArticlePage() {
     const [popupExample, setPopupExample] = useState<string | null>(null);
     const [isPopupLoading, setIsPopupLoading] = useState<boolean>(false);
     const [popupError, setPopupError] = useState<string | null>(null);
-    const [popupTargetElement, setPopupTargetElement] = useState<HTMLElement | null>(null);
-    const [activeOccurrenceKey, setActiveOccurrenceKey] = useState<string | null>(null);
+    const [popupTarget, setPopupTarget] = useState<any>(null);
     const currentFetchId = useRef<string | null>(null);
+    const contentContainerRef = useRef<HTMLDivElement>(null);
+    const [highlightRects, setHighlightRects] = useState<any[]>([]);
+    const [liveHighlightRects, setLiveHighlightRects] = useState<any[]>([]);
+    const [selectedTextInfo, setSelectedTextInfo] = useState<{ text: string; range: any } | null>(null);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const [isPuterSdkReady, setIsPuterSdkReady] = useState(false);
     const puterCheckTimer = useRef<NodeJS.Timeout | null>(null);
     type TermCache = Record<string, { pinyin: string | null; definition: string | null; example: string | null }>;
@@ -117,51 +121,154 @@ export default function ArticlePage() {
         }
     }, []);
 
-    const handleTermClick = async (term: string, occurrenceKey: string, lineContent: string, event: React.MouseEvent<HTMLSpanElement>) => {
-        const target = event.currentTarget;
-        setActiveOccurrenceKey(occurrenceKey);
+    useEffect(() => {
+        const handleLiveSelection = () => {
+            const selection = window.getSelection();
+            if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+                if (document.activeElement?.tagName !== 'INPUT') {
+                    setLiveHighlightRects([]);
+                }
+                return;
+            }
+            const popupNode = document.querySelector('[role="dialog"]');
+            if (popupNode && popupNode.contains(selection.anchorNode)) {
+                return;
+            }
+            const range = selection.getRangeAt(0);
+            setLiveHighlightRects(Array.from(range.getClientRects()));
+        };
 
-        const cleanedLineContent = lineContent.replace(/<|>/g, '').replaceAll(" ", "");
+        document.addEventListener('selectionchange', handleLiveSelection);
+
+        return () => {
+            document.removeEventListener('selectionchange', handleLiveSelection);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleGlobalMouseDown = (event: MouseEvent) => {
+            const targetEl = event.target as HTMLElement;
+            const popupNode = document.querySelector('[role="dialog"]');
+
+            if (popupNode && popupNode.contains(targetEl)) {
+                return;
+            }
+
+            if (targetEl.classList.contains('custom-highlight')) {
+                return;
+            }
+
+            closePopup();
+            setHighlightRects([]);
+            setSelectedTextInfo(null);
+            if (synthRef.current) {
+                synthRef.current.cancel();
+            }
+        };
+
+        document.addEventListener('mousedown', handleGlobalMouseDown);
+
+        return () => {
+            document.removeEventListener('mousedown', handleGlobalMouseDown);
+        };
+    }, [highlightRects]);
+
+    const closePopup = () => {
+        setIsPopupVisible(false);
+        setPopupTerm('');
+        setPopupPinyin(null);
+        setPopupDefinition(null);
+        setPopupExample(null);
+        setIsPopupLoading(false);
+        setPopupError(null);
+        setPopupTarget(null);
+        currentFetchId.current = null;
+    };
+
+
+    const handleMouseUp = () => {
+        const selection = window.getSelection();
+
+        setIsSpeaking(false);
+
+        if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+            setLiveHighlightRects([]);
+            return;
+        }
+        const range = selection.getRangeAt(0).cloneRange();
+        const selectedText = selection.toString().trim();
+        
+        const popupNode = document.querySelector('[role="dialog"]');
+        if (popupNode && popupNode.contains(selection.anchorNode)) {
+            return;
+        }
+
+        if (selectedText) {
+            setHighlightRects(Array.from(range.getClientRects()));
+            setSelectedTextInfo({ text: selectedText, range });
+        }
+        setLiveHighlightRects([]);
+    };
+
+    const handleHighlightClick = async (event: React.MouseEvent<HTMLDivElement>) => {
+        const targetEl = event.target as HTMLElement;
+        if (!targetEl.classList.contains('custom-highlight')) {
+            return;
+        }
+        if (!selectedTextInfo) return;
+
+        const { text: term, range } = selectedTextInfo;
+        const occurrenceKey = term;
+
+        if (isPopupVisible && popupTerm === term) {
+            closePopup();
+            return;
+        }
+
+        setPopupTarget(range);
+        setPopupTerm(term);
 
         if (termCache[occurrenceKey]) {
-
             const cachedData = termCache[occurrenceKey];
-            setPopupTerm(term); setPopupTargetElement(target); setPopupPinyin(cachedData.pinyin);
-            setPopupDefinition(cachedData.definition); setPopupExample(cachedData.example);
-            setIsPopupLoading(false); setPopupError(null); setIsPopupVisible(true);
-            currentFetchId.current = null;
+            setPopupPinyin(cachedData.pinyin);
+            setPopupDefinition(cachedData.definition);
+            setPopupExample(cachedData.example);
+            setIsPopupLoading(false);
+            setPopupError(null);
+            setIsPopupVisible(true);
             return;
         }
 
         if (!isPuterSdkReady) {
-            console.error("Puter SDK not ready.");
-            setPopupTerm(term); setPopupTargetElement(target); setPopupError("AI service initializing or not available.");
-            setIsPopupLoading(false); setIsPopupVisible(true);
+            setPopupError("AI service initializing or not available.");
+            setIsPopupLoading(false);
+            setIsPopupVisible(true);
             return;
         }
 
         const fetchId = occurrenceKey + Date.now();
         currentFetchId.current = fetchId;
-        setPopupTerm(term); setPopupTargetElement(target); setIsPopupLoading(true);
-        setPopupPinyin(null); setPopupDefinition(null); setPopupExample(null);
-        setPopupError(null); setIsPopupVisible(true);
+        setIsPopupLoading(true);
+        setPopupPinyin(null);
+        setPopupDefinition(null);
+        setPopupExample(null);
+        setPopupError(null);
+        setIsPopupVisible(true);
 
         try {
             const entireArticle = window.sessionStorage.getItem("entireArticle");
+            const lineContent = range.startContainer.textContent || '';
+            const cleanedLineContent = lineContent.replace(/<|>/g, '').replaceAll(" ", "");
 
             const combinedPrompt = await fetch("definitionPrompt.txt");
-
             const prompt = await combinedPrompt.text();
-
             const finalPrompt = prompt.replace(/\${([^}]*)}/g, (m, n) => eval(n));
 
             const puterInstance = (window as any).puter;
-
             const response = await puterInstance.ai.chat(finalPrompt);
 
             if (currentFetchId.current === fetchId) {
                 const fullResponseText = response?.message?.content || response?.text || "";
-
                 const lines = fullResponseText.split('\n');
                 let pinyinText: string | null = null;
                 let definitionText: string | null = "Could not parse definition.";
@@ -169,83 +276,46 @@ export default function ArticlePage() {
 
                 lines.forEach(line => {
                     const trimmedLine = line.trim();
-                    if (trimmedLine.match(/^1\.\s*Pinyin:/i)) { pinyinText = trimmedLine.replace(/^1\.\s*Pinyin:\s*/i, '').trim(); }
-                    else if (trimmedLine.match(/^2\.\s*Definition:/i)) { definitionText = trimmedLine.replace(/^2\.\s*Definition:\s*/i, '').trim(); }
-                    else if (trimmedLine.match(/^3\.\s*Example sentence:/i)) { exampleText = trimmedLine.replace(/^3\.\s*Example sentence:\s*/i, '').trim(); }
+                    if (trimmedLine.match(/^1\.\s*Pinyin:/i)) pinyinText = trimmedLine.replace(/^1\.\s*Pinyin:\s*/i, '').trim();
+                    else if (trimmedLine.match(/^2\.\s*Definition:/i)) definitionText = trimmedLine.replace(/^2\.\s*Definition:\s*/i, '').trim();
+                    else if (trimmedLine.match(/^3\.\s*Example sentence:/i)) exampleText = trimmedLine.replace(/^3\.\s*Example sentence:\s*/i, '').trim();
                 });
 
                 const newCacheEntry = { pinyin: pinyinText, definition: definitionText, example: exampleText };
                 setTermCache(prevCache => ({ ...prevCache, [occurrenceKey]: newCacheEntry }));
 
-                setPopupPinyin(pinyinText); setPopupDefinition(definitionText); setPopupExample(exampleText);
+                setPopupPinyin(pinyinText);
+                setPopupDefinition(definitionText);
+                setPopupExample(exampleText);
                 setPopupError(null);
-            } else { console.log(`Stale fetch ignored (cache update skipped) for occurrence: "${occurrenceKey}"`); }
-
+            }
         } catch (err: any) {
             console.error("Puter AI call failed:", err);
-             if (currentFetchId.current === fetchId) {
-                 setPopupError(`Failed to fetch info: ${err.message || 'Unknown error'}`);
-                 setPopupPinyin(null); setPopupDefinition(null); setPopupExample(null);
-             }
+            if (currentFetchId.current === fetchId) {
+                setPopupError(`Failed to fetch info: ${err.message || 'Unknown error'}`);
+            }
         } finally {
-             if (currentFetchId.current === fetchId) {
-                 setIsPopupLoading(false);
-             }
-        }
-    };
-
-    const handleTermRightClick = (term: string, event: React.MouseEvent<HTMLSpanElement>) => {
-        event.preventDefault(); // Prevent the default browser context menu
-        console.log(`Right-clicked term: "${term}"`);
-        
-        const speak = new SpeechSynthesisUtterance(term);
-        speak.voice = selectedVoiceRef.current;
-        synthRef.current?.cancel(); // Cancel any ongoing speech
-        synthRef.current?.speak(speak);
-    };
-
-    const closePopup = () => {
-        setIsPopupVisible(false);
-        setPopupTerm(''); setPopupPinyin(null); setPopupDefinition(null); setPopupExample(null);
-        setIsPopupLoading(false); setPopupError(null); setPopupTargetElement(null);
-        setActiveOccurrenceKey(null);
-        currentFetchId.current = null;
-    };
-
-    const renderAnnotatedLine = (line: string, baseKey: string) => {
-        if (!line) return null;
-        if (!line.includes("<")) {
-            return <Fragment key={`${baseKey}-plain`}>{line}</Fragment>;
-        }
-        const parts = line.split(/(<|>)/g);
-        let isTerm = false;
-
-        const elements: React.ReactNode[] = [];
-        for (let i = 0; i < parts.length; i++) {
-            const part = parts[i];
-            if (part === '<') { isTerm = true; }
-            else if (part === '>') { isTerm = false; }
-            else if (part) {
-                if (isTerm) {
-                    const occurrenceKey = `${baseKey}-term-${i}`;
-
-                    elements.push(
-                        <span key={occurrenceKey}
-                            className={`cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 hover:outline hover:outline-1 hover:outline-gray-400 dark:hover:outline-gray-500 rounded-sm transition-colors duration-150 ${!isPuterSdkReady ? 'cursor-not-allowed opacity-70' : ''}`}
-                            onClick={(e) => handleTermClick(part, occurrenceKey, line, e)}
-                            onContextMenu={(e) => handleTermRightClick(part, e)}
-                            title={isPuterSdkReady ? `Get info for "${part}"` : "AI service initializing..."}
-                        >
-                            {part}
-                        </span>
-                    );
-                } else {
-
-                    elements.push(<Fragment key={`${baseKey}-frag-${i}`}>{part}</Fragment>);
-                }
+            if (currentFetchId.current === fetchId) {
+                setIsPopupLoading(false);
             }
         }
-        return elements; 
+    };
+
+    const handleHighlightRightClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        const targetEl = event.target as HTMLElement;
+        if (!targetEl.classList.contains('custom-highlight')) {
+            return;
+        }
+        event.preventDefault();
+        if (!selectedTextInfo) return;
+
+        const { text } = selectedTextInfo;
+        const speak = new SpeechSynthesisUtterance(text);
+        speak.voice = selectedVoiceRef.current;
+        speak.onstart = () => setIsSpeaking(true);
+        speak.onend = () => setIsSpeaking(false);
+        synthRef.current?.cancel();
+        synthRef.current?.speak(speak);
     };
 
     const renderContent = () => {
@@ -257,7 +327,7 @@ export default function ArticlePage() {
             <div className="text-left text-gray-800 dark:text-gray-200 space-y-4 text-xl leading-relaxed md:text-2xl md:leading-relaxed">
                 {lines.map((line, index) => (
                     <p key={`line-${index}`} className="mb-6 min-h-[1em]">
-                        {renderAnnotatedLine(line, `line-${index}`)}
+                        {line}
                     </p>
                 ))}
             </div>
@@ -266,27 +336,60 @@ export default function ArticlePage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center p-8 sm:p-16 md:p-24 bg-gray-50 dark:bg-gray-900">
-            <div className="w-full max-w-8xl bg-white dark:bg-gray-800 p-12 md:p-16 rounded-lg shadow-lg relative">
+            <div
+                ref={contentContainerRef}
+                className="w-full max-w-8xl bg-white dark:bg-gray-800 p-12 md:p-16 rounded-lg shadow-lg relative"
+                onMouseUp={handleMouseUp}
+                onClick={handleHighlightClick}
+                onContextMenu={handleHighlightRightClick}
+            >
+                {[...liveHighlightRects, ...highlightRects].map((rect, i) => {
+                    const containerRect = contentContainerRef.current?.getBoundingClientRect();
+                    if (!containerRect) return null;
+
+                    const isLive = i < liveHighlightRects.length;
+                    const top = rect.top - containerRect.top;
+                    const left = rect.left - containerRect.left;
+                    
+                    const speakingClass = !isLive && isSpeaking ? 'bg-blue-300 dark:bg-blue-500' : 'bg-gray-500 dark:bg-gray-400';
+                    const liveClass = isLive ? 'opacity-20' : 'opacity-30 hover:opacity-40';
+                    const committedClass = !isLive ? 'custom-highlight' : '';
+
+                    return (
+                        <div
+                            key={i}
+                            className={`absolute ${speakingClass} ${liveClass} ${committedClass} rounded-sm transition-colors duration-300`}
+                            style={{
+                                top: `${top}px`,
+                                left: `${left}px`,
+                                width: `${rect.width}px`,
+                                height: `${rect.height}px`,
+                                pointerEvents: isLive ? 'none' : 'auto',
+                                cursor: isLive ? 'default' : 'pointer',
+                            }}
+                        />
+                    );
+                })}
                 <h1 className="text-6xl md:text-7xl font-semibold text-gray-800 dark:text-white mb-1 md:mb-2 text-center">
-                    {renderAnnotatedLine(articleTitle, 'title-line')}
+                    {articleTitle}
                 </h1>
                 <p className="text-center text-base italic text-gray-500 dark:text-gray-400 mb-2 md:mb-3">
-                   {renderAnnotatedLine(articleAuthor, 'author-line')}
+                   {articleAuthor}
                 </p>
                 {renderContent()}
             </div>
 
             {}
-            {isPopupVisible && popupTargetElement && activeOccurrenceKey && (
+            {isPopupVisible && popupTarget && (
                 <Popup
-                    key={activeOccurrenceKey}
+                    key={popupTerm}
                     term={popupTerm}
                     pinyin={popupPinyin}
                     definition={popupDefinition}
                     example={popupExample}
                     isLoading={isPopupLoading}
                     error={popupError}
-                    targetElement={popupTargetElement}
+                    target={popupTarget}
                     onClose={closePopup}
                 />
             )}
