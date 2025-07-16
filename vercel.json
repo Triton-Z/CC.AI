@@ -1,7 +1,6 @@
 {
-    "functions": {
-      "api/**": {
-        "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
-      }
-    }
-  }
+  "builds": [
+    { "src": "package.json", "use": "@vercel/next" },
+    { "src": "api/index.py", "use": "@vercel/python" }
+  ]
+}
