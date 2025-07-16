@@ -20,9 +20,6 @@ importers:
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.23)
-      concurrently:
-        specifier: ^8.0.1
-        version: 8.2.2
       eslint:
         specifier: 8.40.0
         version: 8.40.0
@@ -47,6 +44,10 @@ importers:
       typescript:
         specifier: 5.0.4
         version: 5.0.4
+    devDependencies:
+      concurrently:
+        specifier: ^8.2.2
+        version: 8.2.2
 
 packages:
 
